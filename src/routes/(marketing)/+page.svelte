@@ -38,10 +38,10 @@
   </div>
 </div>
 
-<div class="hero min-h-60vh">
-  <div class="m-6 md:mt-10 h-auto">
+<div class="hero min-h-[20vh]">
+  <div class="m-10 sm:m-6 max-w-4xl">
     <img
-      class="h-auto max-w-5xl"
+      class="object-contain"
       src="/images/email-digest-ui.png"
       alt="SVG showing email digest UI"
     />
