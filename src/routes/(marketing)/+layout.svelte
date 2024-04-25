@@ -12,7 +12,7 @@
       <img
         src="/images/email-digest-logo.png"
         class="h-8"
-        alt="Flowbite Logo"
+        alt="Email Digest Logo"
       />
       <span class="self-center text-2xl font-semibold">Email Digest </span>
     </a>
@@ -78,7 +78,7 @@
           <img
             src="/images/email-digest-logo.png"
             class="h-8"
-            alt="Flowbite Logo"
+            alt="Email Digest Logo"
           />
           <span class="self-center text-2xl font-semibold">Email Digest </span>
         </a>
