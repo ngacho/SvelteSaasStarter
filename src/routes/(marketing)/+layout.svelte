@@ -67,13 +67,13 @@
 <!-- Spacer grows so the footer can be at bottom on short pages -->
 <div class="flex-grow"></div>
 
-<div class="mt-10">
+<div>
   <footer class="">
-    <div class="w-full max-w-screen-xl mx-auto p-4 md:py-8">
+    <div class="max-w-screen-xl mx-auto p-4 md:py-4">
       <div class="sm:flex sm:items-center sm:justify-between">
         <a
           href="/"
-          class="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse"
+          class="flex items-center mb-2 sm:mb-0 space-x-3 rtl:space-x-reverse"
         >
           <img
             src="/images/email-digest-logo.png"
@@ -83,16 +83,20 @@
           <span class="self-center text-2xl font-semibold">Email Digest </span>
         </a>
         <ul
-          class="flex flex-wrap items-center mb-6 text-sm font-medium text-primary-500 sm:mb-0 dark:text-primary-400"
+          class="flex flex-wrap items-center mb-2 text-sm font-medium text-primary-500 sm:mb-0 dark:text-primary-400"
         >
           <li>
             <a href="/" class="hover:underline me-4 md:me-6">About</a>
           </li>
           <li>
-            <a href="/" class="hover:underline me-4 md:me-6">Privacy Policy</a>
+            <a href="/privacy" class="hover:underline me-4 md:me-6"
+              >Privacy Policy</a
+            >
           </li>
           <li>
-            <a href="/" class="hover:underline me-4 md:me-6">Licensing</a>
+            <a href="/terms" class="hover:underline me-4 md:me-6"
+              >Terms of Service</a
+            >
           </li>
           <li>
             <a href="/" class="hover:underline">Contact</a>
@@ -100,7 +104,7 @@
         </ul>
       </div>
       <hr
-        class="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8"
+        class="w-full my-1 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-1"
       />
       <span
         class="block text-sm text-primary-500 sm:text-center dark:text-primary-400"
