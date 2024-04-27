@@ -99,7 +99,7 @@
             >
           </li>
           <li>
-            <a href="/" class="hover:underline">Contact</a>
+            <a href="/contact_us" class="hover:underline">Contact</a>
           </li>
         </ul>
       </div>
