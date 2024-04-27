@@ -1,3 +1,27 @@
+<script>
+  import { onMount } from "svelte"
+
+  /** @type {import('./$types').ActionData} */
+  export let form
+
+  // Check if the form response status is 200 and redirect if true
+  // Redirect function to be called on client-side
+  function redirectToUri() {
+    if (form?.status === 200 && form?.body.authCodeRequest?.redirect_uri) {
+      window.location.href =
+        form.body.authCodeRequest.redirect_uri +
+        `?success=1&response_type=${form.body.authCodeRequest.response_type}&state=${form.body.authCodeRequest.state}&code=${form.body.access_token}`
+    }
+  }
+
+  // Call redirectToUri function after component mounts (on the client side)
+  onMount(redirectToUri)
+</script>
+
+{#if form?.status === 200}
+  <p>Redirecting...</p>
+{/if}
+
 <svelte:head>
   <title>Authorize</title>
 </svelte:head>
