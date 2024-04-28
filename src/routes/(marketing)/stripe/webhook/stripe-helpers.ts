@@ -35,12 +35,10 @@ const upsertProductRecord = async (product: Stripe.Product) => {
     .from("products")
     .upsert([productData])
   if (upsertError) {
-    error(500, {
-      message: `Product insert/update failed: ${upsertError.message}`,
-    })
-
-    console.log(`Product inserted/updated: ${product.id}`)
+    throw new Error(`Product insert/update failed: ${upsertError.message}`)
   }
+
+  console.log(`Product inserted/updated: ${product.id}`)
 }
 
 // Function to upsert a price record
@@ -77,7 +75,7 @@ const upsertPriceRecord = async (
       )
     }
   } else if (upsertError) {
-    error(500, `Price insert/update failed: ${upsertError.message}`)
+    throw new Error(`Price insert/update failed: ${upsertError.message}`)
   } else {
     console.log(`Price inserted/updated: ${price.id}`)
   }
@@ -89,7 +87,7 @@ const deleteProductRecord = async (product: Stripe.Product) => {
     .delete()
     .eq("id", product.id)
   if (deletionError)
-    throw error(500, `Product deletion failed: ${deletionError.message}`)
+    throw new Error(`Product deletion failed: ${deletionError.message}`)
   console.log(`Product deleted: ${product.id}`)
 }
 
@@ -99,7 +97,7 @@ const deletePriceRecord = async (price: Stripe.Price) => {
     .delete()
     .eq("id", price.id)
   if (deletionError)
-    error(500, `Price deletion failed: ${deletionError.message}`)
+    throw new Error(`Price deletion failed: ${deletionError.message}`)
   console.log(`Price deleted: ${price.id}`)
 }
 
@@ -121,7 +119,7 @@ const upsertCustomerToSupabase = async (uuid: string, customerId: string) => {
 const createCustomerInStripe = async (uuid: string, email: string) => {
   const customerData = { metadata: { supabaseUUID: uuid }, email: email }
   const newCustomer = await stripe.customers.create(customerData)
-  if (!newCustomer) error(500, "Stripe customer creation failed.")
+  if (!newCustomer) throw new Error("Stripe customer creation failed.")
 
   return newCustomer.id
 }
@@ -142,7 +140,7 @@ const createOrRetrieveCustomer = async ({
       .maybeSingle()
 
   if (queryError) {
-    error(500, `Supabase customer lookup failed: ${queryError.message}`)
+    throw new Error(`Supabase customer lookup failed: ${queryError.message}`)
   }
 
   // Retrieve the Stripe customer ID using the Supabase customer ID, with email fallback
@@ -163,7 +161,7 @@ const createOrRetrieveCustomer = async ({
   const stripeIdToInsert = stripeCustomerId
     ? stripeCustomerId
     : await createCustomerInStripe(uuid, email)
-  if (!stripeIdToInsert) error(500, "Stripe customer creation failed.")
+  if (!stripeIdToInsert) throw new Error("Stripe customer creation failed.")
 
   if (existingSupabaseCustomer && stripeCustomerId) {
     // If Supabase has a record but doesn't match Stripe, update Supabase record
@@ -195,7 +193,7 @@ const createOrRetrieveCustomer = async ({
       stripeIdToInsert,
     )
     if (!upsertedStripeCustomer)
-      error(500, "Supabase customer record creation failed.")
+      throw new Error("Supabase customer record creation failed.")
 
     return upsertedStripeCustomer
   }
@@ -221,7 +219,8 @@ const copyBillingDetailsToCustomer = async (
       payment_method: { ...payment_method[payment_method.type] },
     })
     .eq("id", uuid)
-  if (updateError) error(500, `Customer update failed: ${updateError.message}`)
+  if (updateError)
+    throw new Error(`Customer update failed: ${updateError.message}`)
 }
 
 const manageSubscriptionStatusChange = async (
@@ -237,7 +236,7 @@ const manageSubscriptionStatusChange = async (
     .single()
 
   if (noCustomerError)
-    error(500, `Customer lookup failed: ${noCustomerError.message}`)
+    throw new Error(`Customer lookup failed: ${noCustomerError.message}`)
 
   const { id: uuid } = customerData!
 
@@ -283,7 +282,7 @@ const manageSubscriptionStatusChange = async (
     .from("subscriptions")
     .upsert([subscriptionData])
   if (upsertError)
-    error(500, `Subscription insert/update failed: ${upsertError.message}`)
+    throw new Error(`Subscription insert/update failed: ${upsertError.message}`)
   console.log(
     `Inserted/updated subscription [${subscription.id}] for user [${uuid}]`,
   )

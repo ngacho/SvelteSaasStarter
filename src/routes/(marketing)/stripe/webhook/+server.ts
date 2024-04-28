@@ -1,8 +1,14 @@
 import { STRIPE_WEBHOOK_SECRET } from "$env/static/private"
 import type Stripe from "stripe"
 import type { RequestEvent } from "./$types"
-import { deletePriceRecord, deleteProductRecord, manageSubscriptionStatusChange, stripe, upsertPriceRecord, upsertProductRecord } from "./stripe-helpers"
-import { error } from "@sveltejs/kit"
+import {
+  deletePriceRecord,
+  deleteProductRecord,
+  manageSubscriptionStatusChange,
+  stripe,
+  upsertPriceRecord,
+  upsertProductRecord,
+} from "./stripe-helpers"
 
 const relevantEvents = new Set([
   "product.created",
@@ -26,14 +32,14 @@ export async function POST({ request }: RequestEvent) {
 
   try {
     if (!sig || !webhookSecret) {
-      return { status: 401, body: "Unauthorized" }
+      return new Response("Webhook secret not found.", { status: 400 })
     }
 
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
     console.log(`🔔  Webhook received: ${event.type}`)
   } catch (error: any) {
     console.log(`❌ Error message: ${error.message}`)
-    return { status: 400, body: `Webhook Error: ${error.message}` }
+    return new Response(`Webhook Error: ${error.message}`, { status: 400 })
   }
 
   if (relevantEvents.has(event.type)) {
@@ -75,17 +81,16 @@ export async function POST({ request }: RequestEvent) {
           }
           break
         default:
-          error(500, "Unhandled relevant event!")
+          throw new Error("Unhandled relevant event!")
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error)
-      return {
-        status: 500,
-        body: "Webhook handler failed. View your Next.js function logs.",
-      }
+      return new Response(`Webhook Error: ${error.message}`, { status: 400 })
     }
   } else {
-    return { status: 500, body: `Unsupported event type: ${event.type}` }
+    return new Response(`Unsupported event type: ${event.type}`, {
+      status: 400,
+    })
   }
-  return { status: 200, body: "Webhook received successfully!" }
+  return new Response(JSON.stringify({ received: true }))
 }
