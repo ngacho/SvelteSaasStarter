@@ -13,7 +13,7 @@
 <Auth
   supabaseClient={data.supabase}
   view="sign_up"
-  redirectTo={`${data.url}/auth/callback`}
+  redirectTo={`${data.url}/login/sign_in`}
   showLinks={false}
   providers={oauthProviders}
   socialLayout="horizontal"
