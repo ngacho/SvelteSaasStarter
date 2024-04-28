@@ -10,6 +10,7 @@ export const load: PageServerLoad = async ({
 }) => {
   const session = await getSession()
   if (!session) {
+    console.log("🔒 /account/billing/: No session found")
     throw redirect(303, "/login")
   }
 
@@ -18,6 +19,9 @@ export const load: PageServerLoad = async ({
     session,
   })
   if (idError || !customerId) {
+    console.log(
+      `🔒 /account/billing/: Error getting or creating customer ID error: ${idError}, ${customerId}`,
+    )
     throw error(500, {
       message: "Unknown error. If issue persists, please contact us.",
     })
@@ -31,6 +35,9 @@ export const load: PageServerLoad = async ({
     customerId,
   })
   if (fetchErr) {
+    console.log(
+      `🔒 /account/billing/: Error fetching subscription: ${fetchErr}`,
+    )
     throw error(500, {
       message: "Unknown error. If issue persists, please contact us.",
     })

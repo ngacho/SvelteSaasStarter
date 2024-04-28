@@ -11,6 +11,7 @@ export const load: PageServerLoad = async ({
 }) => {
   const session = await getSession()
   if (!session) {
+    console.log("🔒 /account/billing/manage/: No session found")
     throw redirect(303, "/login")
   }
 
@@ -19,6 +20,7 @@ export const load: PageServerLoad = async ({
     session,
   })
   if (idError || !customerId) {
+    console.log(`🔒 /account/billing/manage/: Error getting or creating customer ID eror: ${idError}, ${customerId}`)
     throw error(500, {
       message: "Unknown error (PCID). If issue persists, please contact us.",
     })
@@ -32,10 +34,14 @@ export const load: PageServerLoad = async ({
     })
     portalLink = portalSession?.url
   } catch (e) {
+    console.log(`🔒 /account/billing/manage/: Error creating billing portal session: ${e}`)
+
     throw error(
       500,
       "Unknown error (PSE). If issue persists, please contact us.",
     )
+
+
   }
 
   throw redirect(303, portalLink ?? "/account/billing")
