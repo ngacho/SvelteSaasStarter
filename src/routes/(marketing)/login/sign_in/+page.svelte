@@ -26,7 +26,6 @@
 <svelte:head>
   <title>Sign in</title>
 </svelte:head>
-
 {#if $page.url.searchParams.get("verified") == "true"}
   <div role="alert" class="alert alert-success mb-5">
     <svg

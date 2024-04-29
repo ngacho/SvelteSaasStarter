@@ -1,6 +1,6 @@
 export const blogInfo = {
-  name: "SaaS Starter Blog",
-  description: "A sample blog",
+  name: "Email Digest's Blog and Updates",
+  description: "Email digest's blog and updates. Stay up to date with the latest news and updates.",
 }
 
 export type BlogPost = {
