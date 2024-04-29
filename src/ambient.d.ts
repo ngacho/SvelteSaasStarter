@@ -8,9 +8,9 @@ declare global {
     email?: string
   }
   type AuthcodeRequestUrlParams = {
+    [key: string]: string
     response_type: string
     client_id: string
-    client_secret: string
     redirect_uri: string
     state?: string // Optional property
     scope: string

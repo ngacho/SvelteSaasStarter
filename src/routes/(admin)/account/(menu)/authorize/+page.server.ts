@@ -4,11 +4,25 @@ import {
   getOrCreateCustomerId,
 } from "../../subscription_helpers.server"
 import type { PageServerLoad } from "../$types"
-import { fetchAuthClient } from "../../authorization_helpers.server"
+import {
+  createAuthCodes,
+  fetchAuthClient,
+} from "../../authorization_helpers.server"
+
+function validateAuthcodeRequest(authCodeRequest: AuthcodeRequestUrlParams) {
+  for (let key in authCodeRequest) {
+    if (authCodeRequest[key] === "") {
+      console.log(`Parameter ${key} is empty.`)
+      return false
+    }
+  }
+  return true
+}
 
 export const load: PageServerLoad = async ({
   locals: { getSession, supabaseServiceRole },
   url,
+  cookies,
 }) => {
   const session = await getSession()
   if (!session) {
@@ -52,7 +66,6 @@ export const load: PageServerLoad = async ({
   const searchParams = new URL(url).searchParams
   const auth_client_id = searchParams.get("client_id")
 
-
   if (!auth_client_id) {
     console.log(
       `🔒 /account/billing/: Missing client_id or client_secret in query params`,
@@ -64,7 +77,6 @@ export const load: PageServerLoad = async ({
 
   const fetchAuthClientResponse = await fetchAuthClient({
     clientId: auth_client_id,
-    supabaseServiceRole,
   })
 
   const { authClientName, error: authError } = fetchAuthClientResponse || {}
@@ -78,6 +90,11 @@ export const load: PageServerLoad = async ({
     })
   }
 
+  cookies.set("user_id", session.user.id, {
+    path: "/account/authorize",
+    sameSite: true,
+  })
+
   return {
     isActiveCustomer: !!primarySubscription,
     hasEverHadSubscription,
@@ -88,7 +105,7 @@ export const load: PageServerLoad = async ({
 
 /** @type {import('./$types').Actions} */
 export const actions: import("./$types").Actions = {
-  default: async ({ request }) => {
+  default: async ({ request, cookies }) => {
     const requestUrl = request.url
     console.log("requestUrl:", requestUrl)
 
@@ -98,18 +115,50 @@ export const actions: import("./$types").Actions = {
     let authcodeRequest: AuthcodeRequestUrlParams = {
       response_type: searchParams.get("response_type") ?? "",
       client_id: searchParams.get("client_id") ?? "",
-      client_secret: searchParams.get("client_secret") ?? "",
       redirect_uri: searchParams.get("redirect_uri") ?? "",
       state: searchParams.get("state") ?? "",
       scope: searchParams.get("scope") ?? "",
     }
 
+    if(!validateAuthcodeRequest(authcodeRequest)) {
+      return {
+        status: 400,
+        body: {
+          access_token: "",
+          token_type: "Bearer",
+          expires_in: 0,
+          authCodeRequest: authcodeRequest,
+        },
+      }
+    }
+
     // create access token cuz of session present.
+    const user_id = cookies.get("user_id") ?? ""
+    console.log("user_id:", user_id)
+
+    const { error: authCodeError, authCode } = await createAuthCodes({
+      userId: user_id,
+      clientId: authcodeRequest.client_id,
+    })
+
+    if(authCodeError || !authCode) {
+      return {
+        status: 400,
+        body: {
+          access_token: "",
+          token_type: "Bearer",
+          expires_in: 5 * 60,
+          authCodeRequest: authcodeRequest,
+        },
+      }
+    }
+    // delete the cookie after the access token generation
+    cookies.delete("user_id", { path: "/account/authorize", sameSite: true })
 
     const authCodeResponse: AuthcodeResponse = {
       status: 200,
       body: {
-        access_token: "mkqFqiIcStUViurQOCvWqU",
+        access_token: authCode,
         token_type: "Bearer",
         expires_in: 3600,
         authCodeRequest: authcodeRequest,
