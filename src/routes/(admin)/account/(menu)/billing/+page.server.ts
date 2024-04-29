@@ -4,9 +4,14 @@ import {
   fetchSubscription,
 } from "../../subscription_helpers.server"
 import type { PageServerLoad } from "./$types"
+import { PRIVATE_STRIPE_API_KEY } from "$env/static/private"
+import Stripe from "stripe"
+const stripe = new Stripe(PRIVATE_STRIPE_API_KEY, { apiVersion: "2023-08-16" })
+
 
 export const load: PageServerLoad = async ({
   locals: { getSession, supabaseServiceRole },
+  cookies,
 }) => {
   const session = await getSession()
   if (!session) {
@@ -28,6 +33,7 @@ export const load: PageServerLoad = async ({
   }
 
   const {
+    stripe_subscription_id,
     primarySubscription,
     hasEverHadSubscription,
     error: fetchErr,
@@ -43,9 +49,33 @@ export const load: PageServerLoad = async ({
     })
   }
 
+  // console.log("🔒 /account/billing/: primarySubscription", primarySubscription)
+  if (stripe_subscription_id) {
+    cookies.set("subscription_id", stripe_subscription_id, {
+      path: "/account/billing",
+      sameSite: true,
+    })
+  }
+
   return {
     isActiveCustomer: !!primarySubscription,
     hasEverHadSubscription,
     currentPlanId: primarySubscription?.appSubscription?.id,
   }
+}
+
+/** @type {import('./$types').Actions} */
+export const actions: import("./$types").Actions = {
+  default: async ({ request, cookies }) => {
+    // retrieve subscription id
+    const subscription_id = cookies.get("subscription_id")
+    if (!subscription_id) {
+      console.log("🔒 /account/billing/: No subscription id found")
+      return { error: "Subscription id not found" }
+    }
+
+    const subscription = await stripe.subscriptions.update(subscription_id, {
+      cancel_at_period_end: true,
+    })
+  },
 }

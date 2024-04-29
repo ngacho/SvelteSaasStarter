@@ -70,13 +70,12 @@ export async function POST({ request }: RequestEvent) {
           await deleteProductRecord(event.data.object as Stripe.Product)
           break
         case "customer.subscription.created":
-        case "customer.subscription.updated":
         case "customer.subscription.deleted":
-          const subscription = event.data.object as Stripe.Subscription
+        case "customer.subscription.updated":
+          const updated_subscription = event.data.object as Stripe.Subscription
           await manageSubscriptionStatusChange(
-            subscription.id,
-            subscription.customer as string,
-            event.type === "customer.subscription.created",
+            updated_subscription.id,
+            updated_subscription.customer as string,
           )
           break
         case "checkout.session.completed":

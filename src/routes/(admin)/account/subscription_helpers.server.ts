@@ -100,7 +100,10 @@ export const fetchSubscription = async ({
     )
   })
   let appSubscription = null
+  let stripe_subscription_id = null
   if (primaryStripeSubscription) {
+    stripe_subscription_id = primaryStripeSubscription.id
+    
     const productId =
       primaryStripeSubscription?.items?.data?.[0]?.price.product ?? ""
     appSubscription = pricingPlans.find((x) => {
@@ -124,6 +127,7 @@ export const fetchSubscription = async ({
   const hasEverHadSubscription = stripeSubscriptions.data.length > 0
 
   return {
+    stripe_subscription_id,
     primarySubscription,
     hasEverHadSubscription,
   }
