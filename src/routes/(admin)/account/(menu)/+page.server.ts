@@ -1,4 +1,5 @@
 import { redirect } from "@sveltejs/kit"
+import type { LayoutServerLoad } from "../$types"
 
 export const actions = {
   signout: async ({ locals: { supabase, getSession } }) => {
@@ -8,4 +9,10 @@ export const actions = {
       throw redirect(303, "/")
     }
   },
+}
+
+
+export const load: LayoutServerLoad = async () => {
+  // redirect /account to /account/settings
+  throw redirect(303, "/account/settings")
 }
