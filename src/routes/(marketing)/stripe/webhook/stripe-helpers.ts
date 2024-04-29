@@ -149,7 +149,8 @@ const createOrRetrieveCustomer = async ({
     const existingStripeCustomer = await stripe.customers.retrieve(
       existingSupabaseCustomer.stripe_customer_id,
     )
-    stripeCustomerId = existingStripeCustomer.id
+    console.log(`Existing Stripe customer: ${existingStripeCustomer.id}`)
+    stripeCustomerId = existingStripeCustomer?.id
   } else {
     // If Stripe ID is missing from Supabase, try to retrieve Stripe customer ID by email
     const stripeCustomers = await stripe.customers.list({ email: email })
@@ -231,14 +232,14 @@ const manageSubscriptionStatusChange = async (
   // Get customer's UUID from mapping table.
   const { data: customerData, error: noCustomerError } = await supabaseAdmin
     .from("stripe_customers")
-    .select("id")
+    .select("user_id")
     .eq("stripe_customer_id", customerId)
     .single()
 
   if (noCustomerError)
     throw new Error(`Customer lookup failed: ${noCustomerError.message}`)
 
-  const { id: uuid } = customerData!
+  const { user_id: uuid } = customerData!
 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
     expand: ["default_payment_method"],

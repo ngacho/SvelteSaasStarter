@@ -22,10 +22,20 @@ const relevantEvents = new Set([
   "customer.subscription.updated",
   "customer.subscription.deleted",
 ])
+function toBuffer(ab: ArrayBuffer): Buffer {
+  const buf = Buffer.alloc(ab.byteLength)
+  const view = new Uint8Array(ab)
+  for (let i = 0; i < buf.length; i++) {
+    buf[i] = view[i]
+  }
+  return buf
+}
 
 export async function POST({ request }: RequestEvent) {
   // stripe webhook endpoint
-  const body = await request.text()
+
+  const _rawBody = await request.arrayBuffer()
+  const payload = toBuffer(_rawBody)
   const sig = request.headers.get("stripe-signature") || ""
   const webhookSecret = STRIPE_WEBHOOK_SECRET || ""
   let event: Stripe.Event
@@ -35,7 +45,7 @@ export async function POST({ request }: RequestEvent) {
       return new Response("Webhook secret not found.", { status: 400 })
     }
 
-    event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
+    event = stripe.webhooks.constructEvent(payload, sig, webhookSecret)
     console.log(`🔔  Webhook received: ${event.type}`)
   } catch (error: any) {
     console.log(`❌ Error message: ${error.message}`)

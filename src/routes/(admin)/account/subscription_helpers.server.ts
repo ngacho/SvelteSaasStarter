@@ -29,25 +29,25 @@ export const getOrCreateCustomerId = async ({
   }
 
   // Fetch data needed to create customer
-  const { data: profile, error: profileError } = await supabaseServiceRole
-    .from("profiles")
-    .select(`full_name, website, company_name`)
-    .eq("id", session.user.id)
-    .single()
-  if (profileError) {
-    return { error: profileError }
-  }
+  /**
+   * This is an example of fetching user data from the profiles table. You can fetch any data you need to create a customer.
+   */
+  // const { data: profile, error: profileError } = await supabaseServiceRole
+  //   .from("profiles")
+  //   .select(`full_name, website, company_name`)
+  //   .eq("id", session.user.id)
+  //   .single()
+  // if (profileError) {
+  //   return { error: profileError }
+  // }
 
   // Create a stripe customer
   let customer
   try {
     customer = await stripe.customers.create({
       email: session.user.email,
-      name: profile.full_name ?? "",
       metadata: {
         user_id: session.user.id,
-        company_name: profile.company_name ?? "",
-        website: profile.website ?? "",
       },
     })
   } catch (e) {

@@ -20,7 +20,7 @@ export const load: PageServerLoad = async ({
   })
   if (idError || !customerId) {
     console.log(
-      `🔒 /account/billing/: Error getting or creating customer ID error: ${idError}, ${customerId}`,
+      `🔒 /account/billing/: Error getting or creating customer ID error: ${JSON.stringify(idError)}, ${customerId}`,
     )
     throw error(500, {
       message: "Unknown error. If issue persists, please contact us.",
