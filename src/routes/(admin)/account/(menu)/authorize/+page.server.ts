@@ -8,7 +8,6 @@ import {
   createAuthCodes,
   fetchAuthClient,
 } from "../../authorization_helpers.server"
-import { goto } from "$app/navigation"
 
 function validateAuthcodeRequest(authCodeRequest: AuthcodeRequestUrlParams) {
   for (let key in authCodeRequest) {
@@ -30,9 +29,9 @@ export const load: PageServerLoad = async ({
     // fix this redirect so we come back here after login.
     console.log("🔒 /account/billing/: No session found")
     // will be clutch for login redirect
-    const loginPath = `/login/sign_in${url.search}`
-    // (loginPath)
-    throw redirect(307, loginPath)
+    // const loginPath = `/login${url.search}`
+    // console.log(loginPath)
+    throw redirect(303, "/login")
   }
 
   const { error: idError, customerId } = await getOrCreateCustomerId({
@@ -121,7 +120,7 @@ export const actions: import("./$types").Actions = {
       scope: searchParams.get("scope") ?? "",
     }
 
-    if (!validateAuthcodeRequest(authcodeRequest)) {
+    if(!validateAuthcodeRequest(authcodeRequest)) {
       return {
         status: 400,
         body: {
@@ -142,7 +141,7 @@ export const actions: import("./$types").Actions = {
       clientId: authcodeRequest.client_id,
     })
 
-    if (authCodeError || !authCode) {
+    if(authCodeError || !authCode) {
       return {
         status: 400,
         body: {

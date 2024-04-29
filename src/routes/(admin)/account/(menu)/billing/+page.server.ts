@@ -4,7 +4,6 @@ import {
   fetchSubscription,
 } from "../../subscription_helpers.server"
 import type { PageServerLoad } from "./$types"
-import { stripe } from "../../../../(marketing)/stripe/webhook/stripe-helpers"
 
 export const load: PageServerLoad = async ({
   locals: { getSession, supabaseServiceRole },
@@ -49,9 +48,4 @@ export const load: PageServerLoad = async ({
     hasEverHadSubscription,
     currentPlanId: primarySubscription?.appSubscription?.id,
   }
-}
-
-/** @type {import('./$types').Actions} */
-export const actions: import("./$types").Actions = {
-  default: async ({ request, cookies }) => {},
 }

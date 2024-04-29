@@ -12,7 +12,6 @@ export const load: LayoutServerLoad = async ({
     throw redirect(303, "/account")
   }
 
-  console.log(url.searchParams.get("client"))
   return {
     session: session,
     url: url.origin,

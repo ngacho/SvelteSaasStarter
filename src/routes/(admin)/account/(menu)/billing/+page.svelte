@@ -38,20 +38,17 @@
     </div>
   {/if}
 {:else}
-  <div class="card p-6 pb-7 mt-8 max-w-xl flex flex-col md:flex-row shadow">
-    <form method="POST">
-      <div>
-        <div class="text-xl font-bold mb-3 w-48 flex-none">Subscription</div>
-        <div class="w-full min-w-48">
-          <div class="mb-6">
-            <div class="text-sm text-gray-600">Current Plan</div>
-            <div class="text-lg font-bold">{currentPlanName}</div>
-          </div>
-          <button class="btn btn-outline btn-sm min-w-[145px]">
-            Cancel Subscription
-          </button>
-        </div>
-      </div>
-    </form>
-  </div>
+  <SettingsModule
+    title="Subscription"
+    editable={false}
+    fields={[
+      {
+        id: "plan",
+        label: "Current Plan",
+        initialValue: currentPlanName || "",
+      },
+    ]}
+    editButtonTitle="Manage Subscripton"
+    editLink="/account/billing/manage"
+  />
 {/if}
