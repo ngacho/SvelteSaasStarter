@@ -69,6 +69,9 @@ export const createAccessToken = async ({ authCode }: { authCode: string }) => {
   const now = new Date()
   // check if authcode exists, and if it's not expired.
 
+  // 2-second delay to prevent authcode from being used when its not in db
+  await new Promise((resolve) => setTimeout(resolve, 2000))
+
   let { data: auth_codes, error: authCodeError } = await supabaseAdmin
     .from("auth_codes")
     .select("auth_code,auth_code_expiry, fk_user_id")
@@ -76,7 +79,7 @@ export const createAccessToken = async ({ authCode }: { authCode: string }) => {
 
   if (authCodeError) {
     console.log(
-      "authorization_helpers.server.createAuthCodes(): Error fetching auth code:",
+      "authorization_helpers.server.createAccessToken(): Error fetching auth code:",
       authCodeError,
     )
     return { error: authCodeError }
@@ -84,7 +87,7 @@ export const createAccessToken = async ({ authCode }: { authCode: string }) => {
 
   if (!auth_codes || auth_codes.length === 0) {
     console.log(
-      "authorization_helpers.server.createAuthCodes(): No auth code found.",
+      "authorization_helpers.server.createAccessToken(): No auth code found.",
     )
     return { error: "No auth code found." }
   }
@@ -135,7 +138,7 @@ export const createAccessToken = async ({ authCode }: { authCode: string }) => {
   const accessToken = cryptoRandomString({ length: 64, type: "url-safe" })
   const refreshToken = cryptoRandomString({ length: 64, type: "url-safe" })
   const refreshTokenExpiry = new Date(currentPeriodEnd)
-  refreshTokenExpiry.setMonth(refreshTokenExpiry.getDate() + 7)
+  refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7)
 
   // created_at, access_token, access_token_expiry, refresh_token, refresh_token_expiry, user_id
   const { error: insertError } = await supabaseAdmin
@@ -151,7 +154,7 @@ export const createAccessToken = async ({ authCode }: { authCode: string }) => {
       },
     ])
 
-  if (insertError) {
+  if (insertError?.message.includes("No auth code found")) {
     console.log(
       "authorization_helpers.server.createAuthCodes(): Error inserting access token:",
       insertError,
