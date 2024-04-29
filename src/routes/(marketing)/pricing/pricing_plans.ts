@@ -32,7 +32,7 @@ export const pricingPlans = [
       "A plan to test the upgrade expereince. Try buying this with the test credit card 4242424242424242.",
     price: "$50 ",
     priceIntervalName: "per year",
-    stripe_price_id: "price_1P2z8l018unCjwxRmXD5SHWh",
+    stripe_price_id: "price_1P2z2B018unCjwxRuZ2BJeHD",
     stripe_product_id: "prod_Psj2Jr9Jw4EDoc",
     features: [
       "Everything in Pro",
