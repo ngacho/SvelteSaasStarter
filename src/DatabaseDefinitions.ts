@@ -9,6 +9,14 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      auth_clients: {
+        Row: {
+          id: string
+          client_id: string
+          client_secret: string
+          auth_app_name: string
+        }
+      }
       contact_requests: {
         Row: {
           company_name: string | null
