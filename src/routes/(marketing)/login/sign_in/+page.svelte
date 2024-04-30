@@ -44,20 +44,44 @@
     <span>Email verified! Please sign in.</span>
   </div>
 {/if}
-<h1 class="text-2xl font-bold mb-6">Sign In</h1>
-<Auth
-  supabaseClient={data.supabase}
-  view="sign_in"
-  redirectTo={`${data.url}/auth/callback`}
-  providers={oauthProviders}
-  socialLayout="horizontal"
-  showLinks={false}
-  appearance={sharedAppearance}
-  additionalData={undefined}
-/>
-<div class="text-l text-slate-800 mt-4">
-  <a class="underline" href="/login/forgot_password">Forgot password?</a>
-</div>
-<div class="text-l text-slate-800 mt-3">
-  Don't have an account? <a class="underline" href="/login/sign_up">Sign up</a>.
-</div>
+<!-- if response type is code -->
+{#if $page.url.searchParams.get("response_type") == "code"}
+  <h1 class="text-2xl font-bold mb-6">Sign In</h1>
+  <p>Redirected for auth</p>
+  <Auth
+    supabaseClient={data.supabase}
+    view="sign_in"
+    redirectTo={`${data.url}/account/authorize${$page.url.search}`}
+    providers={oauthProviders}
+    socialLayout="horizontal"
+    showLinks={false}
+    appearance={sharedAppearance}
+    additionalData={undefined}
+  />
+  <div class="text-l text-slate-800 mt-4">
+    <a class="underline" href="/login/forgot_password">Forgot password?</a>
+  </div>
+  <div class="text-l text-slate-800 mt-3">
+    Don't have an account? <a class="underline" href="/login/sign_up">Sign up</a
+    >.
+  </div>
+{:else}
+  <h1 class="text-2xl font-bold mb-6">Sign In</h1>
+  <Auth
+    supabaseClient={data.supabase}
+    view="sign_in"
+    redirectTo={`${data.url}/auth/callback`}
+    providers={oauthProviders}
+    socialLayout="horizontal"
+    showLinks={false}
+    appearance={sharedAppearance}
+    additionalData={undefined}
+  />
+  <div class="text-l text-slate-800 mt-4">
+    <a class="underline" href="/login/forgot_password">Forgot password?</a>
+  </div>
+  <div class="text-l text-slate-800 mt-3">
+    Don't have an account? <a class="underline" href="/login/sign_up">Sign up</a
+    >.
+  </div>
+{/if}

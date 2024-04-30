@@ -12,6 +12,7 @@ export const load: LayoutServerLoad = async ({
   const response_type = url.searchParams.get("response_type")
 
   if (!session && response_type === "code" && client_id) {
+    // redirect to login with client_id and response_type
     throw redirect(303, `/login/sign_in${url.search}`)
   }
 
