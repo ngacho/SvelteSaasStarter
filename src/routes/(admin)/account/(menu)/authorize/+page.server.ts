@@ -134,8 +134,7 @@ export const actions: import("./$types").Actions = {
     }
 
     // create access token cuz of session present.
-    const user_id = cookies.get("user_id") ?? url.searchParams.get("user_id");
-    console.log("user_id:", user_id)
+    const user_id = cookies.get("user_id") ?? url.searchParams.get("sign_in_state");
 
     if(!user_id) {
     
