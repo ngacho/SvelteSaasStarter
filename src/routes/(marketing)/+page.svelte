@@ -27,7 +27,7 @@
       </div>
 
       <div class="mt-6 md:mt-10 text-sm md:text-lg">
-        <a href="https://github.com/CriticalMoments/CMSaasStarter">
+        <a href="/waitlist">
           <button
             class="btn btn-primary btn-sm px-6 h-11 rounded-md px-8 text-large"
             >Stop reading your emails</button
