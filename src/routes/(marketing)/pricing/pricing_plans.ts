@@ -2,42 +2,31 @@ export const defaultPlanId = "free"
 
 export const pricingPlans = [
   {
-    id: "free",
-    name: "Free",
-    description: "A free plan to get you started!",
-    price: "$0",
-    priceIntervalName: "per month",
-    stripe_price_id: null,
-    features: ["MIT Licence", "Fast Performance", "Stripe Integration"],
-  },
-  {
     id: "pro",
     name: "Pro",
     description:
-      "A plan to test the purchase experience. Try buying this with the test credit card 4242424242424242.",
-    price: "$5",
+      "Subscribe monthly and get access to all the features. Cancel anytime.",
+    price: "$4.99",
     priceIntervalName: "per month",
     stripe_price_id: "price_1PAipH018unCjwxRnInTDsgA",
     stripe_product_id: "prod_Q0kJdqOUnL3Yek",
     features: [
-      "Everything in Free",
-      "Support us with fake money",
-      "Test the purchase experience",
+      "Get email summary",
+      "Add tasks from your email to your calendar in a single click"
     ],
   },
   {
-    id: "enterprise",
-    name: "Enterprise",
+    id: "pro-yearly",
+    name: "Annual Pro",
     description:
-      "A plan to test the upgrade expereince. Try buying this with the test credit card 4242424242424242.",
-    price: "$50 ",
+      "Subscribe annually for full access, it's 15% cheaper",
+    price: "$49.99",
     priceIntervalName: "per year",
     stripe_price_id: "price_1PAipb018unCjwxRRXgHjZ68",
     stripe_product_id: "prod_Q0kJdqOUnL3Yek",
     features: [
-      "Everything in Pro",
-      "Try the 'upgrade plan' UX",
-      "Still actually free!",
+      "Everything is free",
+      "15% off",
     ],
   },
 ]
