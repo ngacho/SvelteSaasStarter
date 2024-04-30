@@ -128,14 +128,29 @@ export const actions: import("./$types").Actions = {
           token_type: "Bearer",
           expires_in: 0,
           authCodeRequest: authcodeRequest,
+          error: "Invalid Auth Code Request. Missing parameters.",
         },
       }
     }
 
     // create access token cuz of session present.
-    const user_id = cookies.get("user_id") ?? ""
+    const user_id = cookies.get("user_id") ?? url.searchParams.get("user_id");
     console.log("user_id:", user_id)
 
+    if(!user_id) {
+    
+      return {
+        status: 400,
+        body: {
+          access_token: "",
+          token_type: "Bearer",
+          expires_in: 0,
+          authCodeRequest: authcodeRequest,
+          error: "No user id found",
+        },
+      
+      }
+    }
     const { error: authCodeError, authCode } = await createAuthCodes({
       userId: user_id,
       clientId: authcodeRequest.client_id,
@@ -149,6 +164,7 @@ export const actions: import("./$types").Actions = {
           token_type: "Bearer",
           expires_in: 5 * 60,
           authCodeRequest: authcodeRequest,
+          error: authCodeError?.message || "Error generating access token",
         },
       }
     }

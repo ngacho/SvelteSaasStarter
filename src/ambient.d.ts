@@ -23,6 +23,7 @@ declare global {
       token_type: string
       expires_in: number
       authCodeRequest: AuthcodeRequestUrlParams
+      error?: string
     }
   }
 

@@ -1,4 +1,5 @@
 <script>
+  import { stringify } from "postcss"
   import { onMount } from "svelte"
 
   /** @type {import('./$types').PageData} */
@@ -53,5 +54,11 @@
         <button class="btn btn-error px-10 md:px-20" type="button">Deny</button>
       </div>
     </form>
+  </div>
+{:else if form && form.body?.error}
+  <div>
+    <div class="hero min-h-[60vh] flex flex-col justify-center items-center">
+      <h1 class="text-3xl font-semibold text-center">An error occured : {form?.body?.error}</h1>
+    </div>
   </div>
 {/if}
