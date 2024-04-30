@@ -15,7 +15,6 @@
     supabase.auth.onAuthStateChange((event, session) => {
       // Redirect to account after sucessful login
       if (event == "SIGNED_IN") {
-        console.log("response event ", )
 
         // Delay needed because order of callback not guaranteed.
         // Give the layout callback priority to update state or
@@ -24,7 +23,9 @@
           // set cookie
 
           setTimeout(() => {
-            goto(`${data.url}/account/authorize${$page.url.search}&user_id=${session?.user.id}`)
+            goto(
+              `${data.url}/account/authorize${$page.url.search}&sign_in_state=${session?.user.id}`,
+            )
           }, 1)
         } else {
           setTimeout(() => {
@@ -61,7 +62,7 @@
 {#if $page.url.searchParams.get("response_type") == "code"}
   <h1 class="text-2xl font-bold mb-6">Sign In</h1>
   <p>Redirected for auth</p>
-                                        <Auth
+  <Auth
     supabaseClient={data.supabase}
     view="sign_in"
     redirectTo={`${data.url}/account/authorize${pageSearchParams}`}
@@ -69,7 +70,7 @@
     socialLayout="horizontal"
     showLinks={false}
     appearance={sharedAppearance}
-    additionalData={undefined}                                                             
+    additionalData={undefined}
   />
   <div class="text-l text-slate-800 mt-4">
     <a class="underline" href="/login/forgot_password">Forgot password?</a>
@@ -78,6 +79,7 @@
     Don't have an account? <a class="underline" href="/login/sign_up">Sign up</a
     >.
   </div>
+{:else}
   <h1 class="text-2xl font-bold mb-6">Sign In</h1>
   <Auth
     supabaseClient={data.supabase}
