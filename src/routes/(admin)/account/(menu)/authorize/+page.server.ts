@@ -83,10 +83,10 @@ export const load: PageServerLoad = async ({
 
   if (authError || !authClientName) {
     console.log(
-      `🔒 /account/billing/: Error fetching auth client name: ${error}`,
+      `🔒 /account/billing/: Error fetching auth client name: ${authError}`,
     )
-    error(500, {
-      message: "Unknown error. If issue persists, please contact us.",
+    throw error(500, {
+      message: "Error fetching auth client: Invalid client_id",
     })
   }
 
@@ -120,7 +120,7 @@ export const actions: import("./$types").Actions = {
       scope: searchParams.get("scope") ?? "",
     }
 
-    if(!validateAuthcodeRequest(authcodeRequest)) {
+    if (!validateAuthcodeRequest(authcodeRequest)) {
       return {
         status: 400,
         body: {
@@ -141,7 +141,7 @@ export const actions: import("./$types").Actions = {
       clientId: authcodeRequest.client_id,
     })
 
-    if(authCodeError || !authCode) {
+    if (authCodeError || !authCode) {
       return {
         status: 400,
         body: {

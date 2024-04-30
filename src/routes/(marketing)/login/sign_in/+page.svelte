@@ -7,6 +7,9 @@
 
   export let data
   let { supabase } = data
+  export let pageSearchParams = $page.url.search
+  let responseTypePresent =
+    $page.url.searchParams.get("response_type") === "code"
 
   onMount(() => {
     supabase.auth.onAuthStateChange((event) => {
@@ -15,9 +18,15 @@
         // Delay needed because order of callback not guaranteed.
         // Give the layout callback priority to update state or
         // we'll just bounch back to login when /account tries to load
-        setTimeout(() => {
-          goto("/account")
-        }, 1)
+        if (responseTypePresent) {
+          setTimeout(() => {
+            goto(`${data.url}/account/authorize${$page.url.search}`)
+          }, 1)
+        }else{
+          setTimeout(() => {
+            goto(`${data.url}/account`)
+          }, 1)
+        }
       }
     })
   })
@@ -51,7 +60,7 @@
   <Auth
     supabaseClient={data.supabase}
     view="sign_in"
-    redirectTo={`${data.url}/account/authorize${$page.url.search}`}
+    redirectTo={`${data.url}/account/authorize${pageSearchParams}`}
     providers={oauthProviders}
     socialLayout="horizontal"
     showLinks={false}
