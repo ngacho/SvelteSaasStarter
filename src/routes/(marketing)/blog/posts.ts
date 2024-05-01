@@ -1,5 +1,5 @@
 export const blogInfo = {
-  name: "SaaS Starter Blog",
+  name: "Email Digest Blog and Updates",
   description: "A sample blog",
 }
 

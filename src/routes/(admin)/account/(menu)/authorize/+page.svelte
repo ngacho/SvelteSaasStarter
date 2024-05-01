@@ -1,5 +1,4 @@
 <script>
-  import { stringify } from "postcss"
   import { onMount } from "svelte"
 
   /** @type {import('./$types').PageData} */
