@@ -11,7 +11,7 @@
   <div
     class="text-2xl lg:text-4xl font-medium text-primary flex gap-3 items-baseline text-center place-content-center"
   >
-    <div class="text-centerfont-semibold">
+    <div class="text-center">
       {blogInfo.name}
     </div>
     <a href="/blog/rss.xml" target="_blank" rel="noreferrer">
@@ -23,11 +23,13 @@
     </a>
   </div>
 
-  {#each sortedBlogPosts as post}
-    <div class="my-4 sm:my-2">
-      <a href={post.link}>
-        <div class="text-xl underline">{post.title}</div>
-      </a>
-    </div>
-  {/each}
+  <div class="text-left max-w-lg mx-auto">
+    {#each sortedBlogPosts as post}
+      <div class="py-1 sm:py-0.5">
+        <a href={post.link}>
+          <div class="text-xl underline">{post.title}</div>
+        </a>
+      </div>
+    {/each}
+  </div>
 </div>
