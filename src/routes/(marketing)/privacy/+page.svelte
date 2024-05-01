@@ -183,7 +183,7 @@
         </strong>{" "}
       </p>
       <p>We disclose your Personal Information:</p>
-      <ul>
+      <ul class="list-disc px-10">
         <li>
           <p>
             <strong>Through the functionality you request.</strong> When you use
@@ -299,7 +299,9 @@
         no longer want to receive marketing-related emails from us on a
         going-forward basis, you may opt out by following the unsubscribe
         instructions in the email received or by contacting us at the
-        information listed in the _“_How Can You Contact Us About This Notice?”
+        information listed in the <span class="font-bold"
+          >"How Can You Contact Us About This Notice?”</span
+        >
         section below.
       </p>
       <p>
