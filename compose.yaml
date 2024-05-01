@@ -1,0 +1,12 @@
+services:
+  app:
+    image: sveltekit-app
+    build: .
+    ports:
+      - "4173:4173"
+    env_file:
+      - .env.local
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run preview
