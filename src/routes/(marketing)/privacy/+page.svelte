@@ -10,7 +10,7 @@
 <div class="">
   <div class="max-w-3xl mx-auto my-6">
     <h1 class="text-4xl my-2 font-extrabold">Privacy Policy</h1>
-    <div>
+    <div class="sm:mx-2">
       <p>
         <strong>Last updated:</strong> April 17th, 2024
       </p>

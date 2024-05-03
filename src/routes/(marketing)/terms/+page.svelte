@@ -8,7 +8,7 @@
 </svelte:head>
 
 <div class="">
-  <div class="max-w-3xl mx-auto my-6">
+  <div class="max-w-3xl mx-auto my-6 sm:mx-2">
     <h1 class="text-4xl font-extrabold">Terms of Service</h1>
     <p>‍</p>
     <h2 class="text-2xl font-bold">Welcome to Email Digest</h2>
