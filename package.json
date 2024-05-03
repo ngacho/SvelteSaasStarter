@@ -12,7 +12,9 @@
     "test_run": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write --plugin prettier-plugin-svelte ./src",
-    "format_check": "prettier --check --plugin prettier-plugin-svelte ./src"
+    "format_check": "prettier --check --plugin prettier-plugin-svelte ./src",
+    "docker-build": "docker build -t emaildigest .",
+    "docker-run": "docker run -p 3000:3000 emaildigest"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^2.0.0",

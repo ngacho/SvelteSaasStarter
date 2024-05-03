@@ -3,7 +3,7 @@ services:
     image: sveltekit-app
     build: .
     ports:
-      - "3000:3000"
+      - "10000:10000"
     env_file:
       - .env.local
     volumes:
