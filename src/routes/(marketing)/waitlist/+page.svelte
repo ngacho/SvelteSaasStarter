@@ -105,6 +105,9 @@
             <p class="text-red-600 text-sm mb-2">
               Please resolve above issues.
             </p>
+            <p>
+              {JSON.stringify(errors)}
+            </p>
           {/if}
 
           <button class="btn btn-primary {loading ? 'btn-disabled' : ''}"
