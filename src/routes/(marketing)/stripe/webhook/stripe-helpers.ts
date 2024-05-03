@@ -1,8 +1,8 @@
 import { PRIVATE_STRIPE_API_KEY } from "$env/static/private"
 import {
-  PUBLIC_SUPABASE_URL,
-  PUBLIC_SUPABASE_ANON_KEY,
-} from "$env/static/public"
+  PRIVATE_SUPABASE_URL,
+  PRIVATE_SUPABASE_ANON_KEY,
+} from "$env/static/private"
 import { PRIVATE_SUPABASE_SERVICE_ROLE } from "$env/static/private"
 import Stripe from "stripe"
 import type { Tables, TablesInsert } from "../../../../DatabaseDefinitions"
@@ -16,7 +16,7 @@ type Price = Tables<"prices">
 const TRIAL_PERIOD_DAYS = 14
 
 const supabaseAdmin = createClient(
-  PUBLIC_SUPABASE_URL,
+  PRIVATE_SUPABASE_URL,
   PRIVATE_SUPABASE_SERVICE_ROLE,
   { auth: { persistSession: false } },
 )

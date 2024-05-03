@@ -1,11 +1,11 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 import type { Database } from "../../../DatabaseDefinitions"
 import { PRIVATE_SUPABASE_SERVICE_ROLE } from "$env/static/private"
-import { PUBLIC_SUPABASE_URL } from "$env/static/public"
+import { PRIVATE_SUPABASE_URL } from "$env/static/private"
 import cryptoRandomString from "crypto-random-string"
 
 const supabaseAdmin = createClient(
-  PUBLIC_SUPABASE_URL,
+  PRIVATE_SUPABASE_URL,
   PRIVATE_SUPABASE_SERVICE_ROLE,
   { auth: { persistSession: false } },
 )
