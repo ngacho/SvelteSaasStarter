@@ -1,8 +1,8 @@
 // src/hooks.server.ts
 import {
-  PRIVATE_SUPABASE_URL,
-  PRIVATE_SUPABASE_ANON_KEY,
-} from "$env/static/private"
+  PUBLIC_SUPABASE_URL,
+  PUBLIC_SUPABASE_ANON_KEY,
+} from "$env/static/public"
 import { PRIVATE_SUPABASE_SERVICE_ROLE } from "$env/static/private"
 import { createSupabaseServerClient } from "@supabase/auth-helpers-sveltekit"
 import { createClient } from "@supabase/supabase-js"
@@ -10,13 +10,13 @@ import type { Handle } from "@sveltejs/kit"
 
 export const handle: Handle = async ({ event, resolve }) => {
   event.locals.supabase = createSupabaseServerClient({
-    supabaseUrl: PRIVATE_SUPABASE_URL,
-    supabaseKey: PRIVATE_SUPABASE_ANON_KEY,
+    supabaseUrl: PUBLIC_SUPABASE_URL,
+    supabaseKey: PUBLIC_SUPABASE_ANON_KEY,
     event,
   })
 
   event.locals.supabaseServiceRole = createClient(
-    PRIVATE_SUPABASE_URL,
+    PUBLIC_SUPABASE_URL,
     PRIVATE_SUPABASE_SERVICE_ROLE,
     { auth: { persistSession: false } },
   )
