@@ -1,7 +1,7 @@
 import {
   PRIVATE_SUPABASE_ANON_KEY,
   PRIVATE_SUPABASE_URL,
-} from "$env/static/public"
+} from "$env/static/private"
 import { createSupabaseLoadClient } from "@supabase/auth-helpers-sveltekit"
 
 export const load = async ({ fetch, data, depends }) => {
