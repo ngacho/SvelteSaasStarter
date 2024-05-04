@@ -2,7 +2,7 @@ import { fail } from "@sveltejs/kit"
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-  submitContactUs: async ({ request, locals: { supabaseServiceRole } }) => {
+  submitWaitlist: async ({ request, locals: { supabaseServiceRole } }) => {
     const formData = await request.formData()
     const errors: { [fieldName: string]: string } = {}
 

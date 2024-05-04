@@ -56,7 +56,9 @@
           class="card card-bordered shadow-lg py-6 px-6 mx-2 lg:mx-0 lg:p-6 mb-10"
         >
           <div class="text-2xl font-bold mb-4">Thank you! You're in</div>
-          <p class="">We've put you on the waitlist and we will be in touch soon.</p>
+          <p class="">
+            We've put you on the waitlist and we will be in touch soon.
+          </p>
         </div>
       </div>
     {:else}
@@ -64,7 +66,7 @@
         <form
           class="form-widget flex flex-col"
           method="POST"
-          action="?/submitContactUs"
+          action="?/submitWaitlist"
           use:enhance={handleSubmit}
         >
           {#each formFields as field}
