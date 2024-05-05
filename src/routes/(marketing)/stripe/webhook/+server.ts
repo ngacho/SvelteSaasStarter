@@ -31,7 +31,7 @@ function toBuffer(ab: ArrayBuffer): Buffer {
   return buf
 }
 
-export async function POST({ request }: RequestEvent) {
+export async function POST({ request }) {
   // stripe webhook endpoint
 
   const payload = Buffer.from(await request.arrayBuffer())
