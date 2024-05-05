@@ -253,6 +253,7 @@ const manageSubscriptionStatusChange = async (
   customerId: string,
   createAction = false,
 ) => {
+  console.log(`Subscription status change for [${subscriptionId}], customer: [${customerId}]`)
   // Get customer's UUID from mapping table.
   const { data: customerData, error: noCustomerError } = await supabaseAdmin
     .from("stripe_customers")
