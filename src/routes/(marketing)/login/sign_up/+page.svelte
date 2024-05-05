@@ -1,8 +1,22 @@
 <script lang="ts">
   import { Auth } from "@supabase/auth-ui-svelte"
   import { sharedAppearance, oauthProviders } from "../login_config"
+  import { onMount } from "svelte"
+  import { goto } from "$app/navigation"
 
   export let data
+  let { supabase } = data
+
+  onMount(() => {
+    supabase.auth.onAuthStateChange((event: string, session: any) => {
+      // Redirect to account after sucessful login
+      if (event == "SIGNED_IN") {
+        setTimeout(() => {
+          goto(`${data.url}/account/`)
+        }, 1)
+      }
+    })
+  })
 </script>
 
 <svelte:head>
