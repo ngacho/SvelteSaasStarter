@@ -34,7 +34,7 @@ const upsertProductRecord = async (product: Stripe.Product) => {
     .from("products")
     .upsert([productData])
   if (upsertError) {
-    console.log('upsertError', upsertError.message)
+    console.log('webhook.upsertProductRecord(): supsertError', upsertError.message)
     throw new Response(`Product insert/update failed: ${upsertError.message}`, {status : 500})
   }
 
@@ -69,14 +69,14 @@ const upsertPriceRecord = async (
       await new Promise((resolve) => setTimeout(resolve, 2000))
       await upsertPriceRecord(price, retryCount + 1, maxRetries)
     } else {
-      console.log(`Price insert/update failed after ${maxRetries} retries: ${upsertError.message}`)
+      console.log(`webhook.upsertPriceRecord(): Price insert/update failed after ${maxRetries} retries: ${upsertError.message}`)
       throw new Response(
         `Price insert/update failed after ${maxRetries} retries: ${upsertError.message}`,
         {status : 500}
       )
     }
   } else if (upsertError) {
-    console.log('upsertError', upsertError.message)
+    console.log('webhook.upsertPriceRecord(): upsertError', upsertError.message)
     throw new Response(`Price insert/update failed: ${upsertError.message}`, {status : 500})
   } else {
     console.log(`Price inserted/updated: ${price.id}`)
@@ -89,7 +89,7 @@ const deleteProductRecord = async (product: Stripe.Product) => {
     .delete()
     .eq("id", product.id)
   if (deletionError){
-    console.log('deletionError', deletionError.message)
+    console.log('webhook.deleteProductRecord(): deletionError', deletionError.message)
     throw new Response(`Product deletion failed: ${deletionError.message}`, {status : 500})
   }
   console.log(`Product deleted: ${product.id}`)
@@ -101,7 +101,7 @@ const deletePriceRecord = async (price: Stripe.Price) => {
     .delete()
     .eq("id", price.id)
   if (deletionError){
-    console.log('deletionError', deletionError.message)
+    console.log('webhook.deletePriceRecord() : deletionError', deletionError.message)
     throw new Response(`Price deletion failed: ${deletionError.message}`, {status : 500})
   }
   console.log(`Price deleted: ${price.id}`)
@@ -114,7 +114,7 @@ const upsertCustomerToSupabase = async (uuid: string, customerId: string) => {
     .upsert([{ id: uuid, now, stripe_customer_id: customerId }])
 
   if (upsertError){
-    console.log('upsertError', upsertError.message)
+    console.log('webhook.upsertCustomerToSupabase() : upsertError', upsertError.message)
     throw new Response(
       `Supabase customer record creation failed: ${upsertError.message}`,
       {status : 500}
@@ -130,7 +130,7 @@ const createCustomerInStripe = async (uuid: string, email: string) => {
   const customerData = { metadata: { supabaseUUID: uuid }, email: email }
   const newCustomer = await stripe.customers.create(customerData)
   if (!newCustomer){
-    console.log(' customer creation failed ')
+    console.log('webhook.createCustomerInStripe() : customer creation failed ')
     throw new Response("Stripe customer creation failed.", {status : 500})
   }
     
@@ -154,7 +154,7 @@ const createOrRetrieveCustomer = async ({
       .maybeSingle()
 
   if (queryError) {
-    console.log('queryError', queryError.message)
+    console.log('webhook.createOrRetrieveCustomer() : queryError', queryError.message)
     throw new Response(`Supabase customer lookup failed: ${queryError.message}`, {status : 500})
   }
 
@@ -188,7 +188,7 @@ const createOrRetrieveCustomer = async ({
         .eq("id", uuid)
 
       if (updateError){
-        console.log('updateError', updateError.message)
+        console.log('webhook.createOrRetrieveCustomer() : updateError', updateError.message)
         throw new Response(
           `Supabase customer record update failed: ${updateError.message}`,
           {status : 500}
@@ -211,7 +211,7 @@ const createOrRetrieveCustomer = async ({
       stripeIdToInsert,
     )
     if (!upsertedStripeCustomer){
-      console.log('upsertedStripeCustomer', upsertedStripeCustomer)
+      console.log('webhook.createOrRetrieveCustomer() : upsertedStripeCustomer', upsertedStripeCustomer)
       throw new Response("Supabase customer record creation failed.", {status : 500})
     }
       
@@ -241,7 +241,7 @@ const copyBillingDetailsToCustomer = async (
     })
     .eq("id", uuid)
   if (updateError){
-    console.log('updateError', updateError.message)
+    console.log('webhook.copyBillingDetailsToCustomer() : updateError', updateError.message)
     throw new Response(`Customer update failed: ${updateError.message}`, {
       status: 400,
     })
@@ -261,7 +261,7 @@ const manageSubscriptionStatusChange = async (
     .single()
 
   if (noCustomerError){
-    console.log('noCustomerError', noCustomerError.message)
+    console.log('webhook.manageSubscriptionStatusChange() : noCustomerError', noCustomerError.message)
     throw new Response(`Customer lookup failed: ${noCustomerError.message}`)
   }
 
@@ -309,7 +309,7 @@ const manageSubscriptionStatusChange = async (
     .from("subscriptions")
     .upsert([subscriptionData])
   if (upsertError) {
-    console.log('upsertError', upsertError.message)
+    console.log('webhook.manageSubscriptionStatusChange() : upsertError', upsertError.message)
     throw new Response("Unhandled relevant event!", { status: 400 })
   }
   console.log(
