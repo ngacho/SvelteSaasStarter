@@ -295,7 +295,7 @@ const manageSubscriptionStatusChange = async (
   // Get customer's UUID from mapping table.
   const { data: customerData, error: noCustomerError } = await supabaseAdmin
     .from("stripe_customers")
-    .select("user_id")
+    .select("user_id, stripe_customer_id")
     .eq("stripe_customer_id", customerId)
     .single()
 
@@ -304,24 +304,39 @@ const manageSubscriptionStatusChange = async (
       "webhook.manageSubscriptionStatusChange() : noCustomerError",
       noCustomerError.message,
     )
-    throw new Response(`Customer lookup failed: ${noCustomerError.message}`)
+    throw new Response(
+      `Customer lookup failed: ${noCustomerError.message} - ${JSON.stringify(customerData)}`,
+    )
   }
 
-  const { user_id: uuid } = customerData!
+  const { user_id: uuid, stripe_customer_id: _ } = customerData
 
+  let subscription: Stripe.Subscription | undefined
   try {
     // 2-second delay to prevent authcode from being used when its not in db
     await new Promise((resolve) => setTimeout(resolve, 2000))
-    
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+
+    subscription = await stripe.subscriptions.retrieve(subscriptionId, {
       expand: ["default_payment_method"],
     })
+  } catch (error: any) {
+    switch (error.type) {
+      case "StripeCardError":
+        console.log(`A payment error occurred: ${error.message}`)
+        break
+      case "StripeInvalidRequestError":
+        console.log(`An invalid request occurred: ${error.message}`)
+        break
+      default:
+        console.log("Another problem occurred, maybe unrelated to Stripe.")
+        break
+    }
 
     if (!subscription) {
       console.log(
         "webhook.manageSubscriptionStatusChange() : No subscription found",
       )
-      // throw new Response("Unhandled relevant event!", { status: 400 })
+      throw new Response("No subscription found", { status: 400 })
     }
 
     // Upsert the latest status of the subscription object.
@@ -381,20 +396,6 @@ const manageSubscriptionStatusChange = async (
         uuid,
         subscription.default_payment_method as Stripe.PaymentMethod,
       )
-  } catch (error: any) {
-    switch (error.type) {
-      case "StripeCardError":
-        console.log(`A payment error occurred: ${error.message}`)
-        break
-      case "StripeInvalidRequestError":
-        console.log(`An invalid request occurred: ${error.message}`)
-        break
-      default:
-        console.log("Another problem occurred, maybe unrelated to Stripe.")
-        break
-    }
-
-    // throw new Response("Unhandled relevant event!", { status: 400 })
   }
 }
 
