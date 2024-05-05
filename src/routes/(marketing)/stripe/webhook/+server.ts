@@ -34,7 +34,7 @@ function toBuffer(ab: ArrayBuffer): Buffer {
 export async function POST({ request }: RequestEvent) {
   // stripe webhook endpoint
 
-  const _rawBody = await request.text()
+  const payload = Buffer.from(await request.arrayBuffer())
   const sig = request.headers.get("stripe-signature") || ""
   const webhookSecret = STRIPE_WEBHOOK_SECRET || ""
   let event: Stripe.Event
@@ -44,9 +44,9 @@ export async function POST({ request }: RequestEvent) {
       return new Response("Webhook secret not found.", { status: 400 })
     }
 
-    console.log(`🔔  Webhook received: ${_rawBody}`)
+    console.log(`🔔  Webhook received: ${payload}`)
 
-    event = stripe.webhooks.constructEvent(_rawBody, sig, webhookSecret)
+    event = stripe.webhooks.constructEvent(payload, sig, webhookSecret)
     console.log(`🔔  Webhook received: ${event.type}`)
   } catch (error: any) {
     console.log(`❌ Error message: ${error.message}`)
