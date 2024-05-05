@@ -34,8 +34,13 @@ const upsertProductRecord = async (product: Stripe.Product) => {
     .from("products")
     .upsert([productData])
   if (upsertError) {
-    console.log('webhook.upsertProductRecord(): supsertError', upsertError.message)
-    throw new Response(`Product insert/update failed: ${upsertError.message}`, {status : 500})
+    console.log(
+      "webhook.upsertProductRecord(): supsertError",
+      upsertError.message,
+    )
+    throw new Response(`Product insert/update failed: ${upsertError.message}`, {
+      status: 500,
+    })
   }
 
   console.log(`Product inserted/updated: ${product.id}`)
@@ -69,15 +74,19 @@ const upsertPriceRecord = async (
       await new Promise((resolve) => setTimeout(resolve, 2000))
       await upsertPriceRecord(price, retryCount + 1, maxRetries)
     } else {
-      console.log(`webhook.upsertPriceRecord(): Price insert/update failed after ${maxRetries} retries: ${upsertError.message}`)
+      console.log(
+        `webhook.upsertPriceRecord(): Price insert/update failed after ${maxRetries} retries: ${upsertError.message}`,
+      )
       throw new Response(
         `Price insert/update failed after ${maxRetries} retries: ${upsertError.message}`,
-        {status : 500}
+        { status: 500 },
       )
     }
   } else if (upsertError) {
-    console.log('webhook.upsertPriceRecord(): upsertError', upsertError.message)
-    throw new Response(`Price insert/update failed: ${upsertError.message}`, {status : 500})
+    console.log("webhook.upsertPriceRecord(): upsertError", upsertError.message)
+    throw new Response(`Price insert/update failed: ${upsertError.message}`, {
+      status: 500,
+    })
   } else {
     console.log(`Price inserted/updated: ${price.id}`)
   }
@@ -88,9 +97,14 @@ const deleteProductRecord = async (product: Stripe.Product) => {
     .from("products")
     .delete()
     .eq("id", product.id)
-  if (deletionError){
-    console.log('webhook.deleteProductRecord(): deletionError', deletionError.message)
-    throw new Response(`Product deletion failed: ${deletionError.message}`, {status : 500})
+  if (deletionError) {
+    console.log(
+      "webhook.deleteProductRecord(): deletionError",
+      deletionError.message,
+    )
+    throw new Response(`Product deletion failed: ${deletionError.message}`, {
+      status: 500,
+    })
   }
   console.log(`Product deleted: ${product.id}`)
 }
@@ -100,9 +114,14 @@ const deletePriceRecord = async (price: Stripe.Price) => {
     .from("prices")
     .delete()
     .eq("id", price.id)
-  if (deletionError){
-    console.log('webhook.deletePriceRecord() : deletionError', deletionError.message)
-    throw new Response(`Price deletion failed: ${deletionError.message}`, {status : 500})
+  if (deletionError) {
+    console.log(
+      "webhook.deletePriceRecord() : deletionError",
+      deletionError.message,
+    )
+    throw new Response(`Price deletion failed: ${deletionError.message}`, {
+      status: 500,
+    })
   }
   console.log(`Price deleted: ${price.id}`)
 }
@@ -113,15 +132,16 @@ const upsertCustomerToSupabase = async (uuid: string, customerId: string) => {
     .from("stripe_customers")
     .upsert([{ id: uuid, now, stripe_customer_id: customerId }])
 
-  if (upsertError){
-    console.log('webhook.upsertCustomerToSupabase() : upsertError', upsertError.message)
+  if (upsertError) {
+    console.log(
+      "webhook.upsertCustomerToSupabase() : upsertError",
+      upsertError.message,
+    )
     throw new Response(
       `Supabase customer record creation failed: ${upsertError.message}`,
-      {status : 500}
+      { status: 500 },
     )
-
   }
-    
 
   return customerId
 }
@@ -129,11 +149,10 @@ const upsertCustomerToSupabase = async (uuid: string, customerId: string) => {
 const createCustomerInStripe = async (uuid: string, email: string) => {
   const customerData = { metadata: { supabaseUUID: uuid }, email: email }
   const newCustomer = await stripe.customers.create(customerData)
-  if (!newCustomer){
-    console.log('webhook.createCustomerInStripe() : customer creation failed ')
-    throw new Response("Stripe customer creation failed.", {status : 500})
+  if (!newCustomer) {
+    console.log("webhook.createCustomerInStripe() : customer creation failed ")
+    throw new Response("Stripe customer creation failed.", { status: 500 })
   }
-    
 
   return newCustomer.id
 }
@@ -154,8 +173,14 @@ const createOrRetrieveCustomer = async ({
       .maybeSingle()
 
   if (queryError) {
-    console.log('webhook.createOrRetrieveCustomer() : queryError', queryError.message)
-    throw new Response(`Supabase customer lookup failed: ${queryError.message}`, {status : 500})
+    console.log(
+      "webhook.createOrRetrieveCustomer() : queryError",
+      queryError.message,
+    )
+    throw new Response(
+      `Supabase customer lookup failed: ${queryError.message}`,
+      { status: 500 },
+    )
   }
 
   // Retrieve the Stripe customer ID using the Supabase customer ID, with email fallback
@@ -177,7 +202,8 @@ const createOrRetrieveCustomer = async ({
   const stripeIdToInsert = stripeCustomerId
     ? stripeCustomerId
     : await createCustomerInStripe(uuid, email)
-  if (!stripeIdToInsert) throw new Response("Stripe customer creation failed.", {status : 500})
+  if (!stripeIdToInsert)
+    throw new Response("Stripe customer creation failed.", { status: 500 })
 
   if (existingSupabaseCustomer && stripeCustomerId) {
     // If Supabase has a record but doesn't match Stripe, update Supabase record
@@ -187,11 +213,14 @@ const createOrRetrieveCustomer = async ({
         .update({ stripe_customer_id: stripeCustomerId })
         .eq("id", uuid)
 
-      if (updateError){
-        console.log('webhook.createOrRetrieveCustomer() : updateError', updateError.message)
+      if (updateError) {
+        console.log(
+          "webhook.createOrRetrieveCustomer() : updateError",
+          updateError.message,
+        )
         throw new Response(
           `Supabase customer record update failed: ${updateError.message}`,
-          {status : 500}
+          { status: 500 },
         )
       }
       console.warn(
@@ -210,11 +239,15 @@ const createOrRetrieveCustomer = async ({
       uuid,
       stripeIdToInsert,
     )
-    if (!upsertedStripeCustomer){
-      console.log('webhook.createOrRetrieveCustomer() : upsertedStripeCustomer', upsertedStripeCustomer)
-      throw new Response("Supabase customer record creation failed.", {status : 500})
+    if (!upsertedStripeCustomer) {
+      console.log(
+        "webhook.createOrRetrieveCustomer() : upsertedStripeCustomer",
+        upsertedStripeCustomer,
+      )
+      throw new Response("Supabase customer record creation failed.", {
+        status: 500,
+      })
     }
-      
 
     return upsertedStripeCustomer
   }
@@ -240,8 +273,11 @@ const copyBillingDetailsToCustomer = async (
       payment_method: { ...payment_method[payment_method.type] },
     })
     .eq("id", uuid)
-  if (updateError){
-    console.log('webhook.copyBillingDetailsToCustomer() : updateError', updateError.message)
+  if (updateError) {
+    console.log(
+      "webhook.copyBillingDetailsToCustomer() : updateError",
+      updateError.message,
+    )
     throw new Response(`Customer update failed: ${updateError.message}`, {
       status: 400,
     })
@@ -253,7 +289,9 @@ const manageSubscriptionStatusChange = async (
   customerId: string,
   createAction = false,
 ) => {
-  console.log(`Subscription status change for [${subscriptionId}], customer: [${customerId}]`)
+  console.log(
+    `Subscription status change for [${subscriptionId}], customer: [${customerId}]`,
+  )
   // Get customer's UUID from mapping table.
   const { data: customerData, error: noCustomerError } = await supabaseAdmin
     .from("stripe_customers")
@@ -261,70 +299,100 @@ const manageSubscriptionStatusChange = async (
     .eq("stripe_customer_id", customerId)
     .single()
 
-  if (noCustomerError){
-    console.log('webhook.manageSubscriptionStatusChange() : noCustomerError', noCustomerError.message)
+  if (noCustomerError) {
+    console.log(
+      "webhook.manageSubscriptionStatusChange() : noCustomerError",
+      noCustomerError.message,
+    )
     throw new Response(`Customer lookup failed: ${noCustomerError.message}`)
   }
 
   const { user_id: uuid } = customerData!
 
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
-    expand: ["default_payment_method"],
-  })
-  // Upsert the latest status of the subscription object.
-  const subscriptionData: TablesInsert<"subscriptions"> = {
-    id: subscription.id,
-    user_id: uuid,
-    metadata: subscription.metadata,
-    status: subscription.status,
-    price_id: subscription.items.data[0].price.id,
-    //TODO check quantity on subscription
-    // @ts-ignore
-    quantity: subscription.quantity,
-    cancel_at_period_end: subscription.cancel_at_period_end,
-    cancel_at: subscription.cancel_at
-      ? toDateTime(subscription.cancel_at).toISOString()
-      : null,
-    canceled_at: subscription.canceled_at
-      ? toDateTime(subscription.canceled_at).toISOString()
-      : null,
-    current_period_start: toDateTime(
-      subscription.current_period_start,
-    ).toISOString(),
-    current_period_end: toDateTime(
-      subscription.current_period_end,
-    ).toISOString(),
-    created: toDateTime(subscription.created).toISOString(),
-    ended_at: subscription.ended_at
-      ? toDateTime(subscription.ended_at).toISOString()
-      : null,
-    trial_start: subscription.trial_start
-      ? toDateTime(subscription.trial_start).toISOString()
-      : null,
-    trial_end: subscription.trial_end
-      ? toDateTime(subscription.trial_end).toISOString()
-      : null,
-  }
+  try {
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+      expand: ["default_payment_method"],
+    })
 
-  const { error: upsertError } = await supabaseAdmin
-    .from("subscriptions")
-    .upsert([subscriptionData])
-  if (upsertError) {
-    console.log('webhook.manageSubscriptionStatusChange() : upsertError', upsertError.message)
-    throw new Response("Unhandled relevant event!", { status: 400 })
-  }
-  console.log(
-    `Inserted/updated subscription [${subscription.id}] for user [${uuid}]`,
-  )
+    if (!subscription) {
+      console.log(
+        "webhook.manageSubscriptionStatusChange() : No subscription found",
+      )
+      // throw new Response("Unhandled relevant event!", { status: 400 })
+    }
 
-  // For a new subscription copy the billing details to the customer object.
-  // NOTE: This is a costly operation and should happen at the very end.
-  if (createAction && subscription.default_payment_method && uuid)
-    //@ts-ignore
-    await copyBillingDetailsToCustomer(
-      uuid,
-      subscription.default_payment_method as Stripe.PaymentMethod,
+    // Upsert the latest status of the subscription object.
+    const subscriptionData: TablesInsert<"subscriptions"> = {
+      id: subscription.id,
+      user_id: uuid,
+      metadata: subscription.metadata,
+      status: subscription.status,
+      price_id: subscription.items.data[0].price.id,
+      //TODO check quantity on subscription
+      // @ts-ignore
+      quantity: subscription.quantity,
+      cancel_at_period_end: subscription.cancel_at_period_end,
+      cancel_at: subscription.cancel_at
+        ? toDateTime(subscription.cancel_at).toISOString()
+        : null,
+      canceled_at: subscription.canceled_at
+        ? toDateTime(subscription.canceled_at).toISOString()
+        : null,
+      current_period_start: toDateTime(
+        subscription.current_period_start,
+      ).toISOString(),
+      current_period_end: toDateTime(
+        subscription.current_period_end,
+      ).toISOString(),
+      created: toDateTime(subscription.created).toISOString(),
+      ended_at: subscription.ended_at
+        ? toDateTime(subscription.ended_at).toISOString()
+        : null,
+      trial_start: subscription.trial_start
+        ? toDateTime(subscription.trial_start).toISOString()
+        : null,
+      trial_end: subscription.trial_end
+        ? toDateTime(subscription.trial_end).toISOString()
+        : null,
+    }
+
+    const { error: upsertError } = await supabaseAdmin
+      .from("subscriptions")
+      .upsert([subscriptionData])
+    if (upsertError) {
+      console.log(
+        "webhook.manageSubscriptionStatusChange() : upsertError",
+        upsertError.message,
+      )
+      throw new Response("Unhandled relevant event!", { status: 400 })
+    }
+    console.log(
+      `Inserted/updated subscription [${subscription.id}] for user [${uuid}]`,
     )
+
+    // For a new subscription copy the billing details to the customer object.
+    // NOTE: This is a costly operation and should happen at the very end.
+    if (createAction && subscription.default_payment_method && uuid)
+      //@ts-ignore
+      await copyBillingDetailsToCustomer(
+        uuid,
+        subscription.default_payment_method as Stripe.PaymentMethod,
+      )
+  } catch (error: any) {
+    switch (error.type) {
+      case "StripeCardError":
+        console.log(`A payment error occurred: ${error.message}`)
+        break
+      case "StripeInvalidRequestError":
+        console.log(`An invalid request occurred: ${error.message}`)
+        break
+      default:
+        console.log("Another problem occurred, maybe unrelated to Stripe.")
+        break
+    }
+
+    // throw new Response("Unhandled relevant event!", { status: 400 })
+  }
 }
 
 function toDateTime(cancel_at: number): Date {
