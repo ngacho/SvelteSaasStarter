@@ -310,6 +310,9 @@ const manageSubscriptionStatusChange = async (
   const { user_id: uuid } = customerData!
 
   try {
+    // 2-second delay to prevent authcode from being used when its not in db
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    
     const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
       expand: ["default_payment_method"],
     })
