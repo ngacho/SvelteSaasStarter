@@ -90,13 +90,15 @@ export async function POST({ request }: RequestEvent) {
           }
           break
         default:
-          throw new Error("Unhandled relevant event!")
+          console.log(`Unhandled relevant event: ${event.type}`)
+          throw new Response("Unhandled relevant event!", { status: 400 })
       }
     } catch (error: any) {
       console.log(error)
       return new Response(`Webhook Error: ${error.message}`, { status: 400 })
     }
   } else {
+    console.log(`Unsupported event type: ${event.type}`)
     return new Response(`Unsupported event type: ${event.type}`, {
       status: 400,
     })
