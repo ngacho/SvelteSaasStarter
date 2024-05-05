@@ -49,12 +49,6 @@
         <li><a href="/blog">Blog</a></li>
         <li><a href="/pricing">Pricing</a></li>
         <li><a href="/account">Account</a></li>
-        <li>
-          <a
-            href="https://github.com/CriticalMoments/CMSaasStarter"
-            class="border border-primary">★ us on Github</a
-          >
-        </li>
       </ul>
     </div>
   </div>
