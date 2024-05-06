@@ -1,6 +1,5 @@
-import { STRIPE_WEBHOOK_SECRET } from "$env/static/private"
+import { env } from "$env/dynamic/private"
 import type Stripe from "stripe"
-import type { RequestEvent } from "./$types"
 import {
   deletePriceRecord,
   deleteProductRecord,
@@ -22,26 +21,16 @@ const relevantEvents = new Set([
   "customer.subscription.updated",
   "customer.subscription.deleted",
 ])
-function toBuffer(ab: ArrayBuffer): Buffer {
-  const buf = Buffer.alloc(ab.byteLength)
-  const view = new Uint8Array(ab)
-  for (let i = 0; i < buf.length; i++) {
-    buf[i] = view[i]
-  }
-  return buf
-}
-
-export async function POST({ request }: RequestEvent) {
+export async function POST({ request }) {
   // stripe webhook endpoint
 
-  const _rawBody = await request.arrayBuffer()
-  const payload = toBuffer(_rawBody)
+  const payload = Buffer.from(await request.arrayBuffer())
   const sig = request.headers.get("stripe-signature") || ""
-  const webhookSecret = STRIPE_WEBHOOK_SECRET || ""
+  const webhookSecret = (env.STRIPE_WEBHOOK_SECRET as string) || ""
   let event: Stripe.Event
 
   try {
-    if (!sig || !webhookSecret) {
+    if (!sig || !webhookSecret || !payload) {
       return new Response("Webhook secret not found.", { status: 400 })
     }
 
@@ -90,13 +79,15 @@ export async function POST({ request }: RequestEvent) {
           }
           break
         default:
-          throw new Error("Unhandled relevant event!")
+          console.log(`Unhandled relevant event: ${event.type}`)
+          throw new Response("Unhandled relevant event!", { status: 400 })
       }
     } catch (error: any) {
       console.log(error)
       return new Response(`Webhook Error: ${error.message}`, { status: 400 })
     }
   } else {
+    console.log(`Unsupported event type: ${event.type}`)
     return new Response(`Unsupported event type: ${event.type}`, {
       status: 400,
     })
