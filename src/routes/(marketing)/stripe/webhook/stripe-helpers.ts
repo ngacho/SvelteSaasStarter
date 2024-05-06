@@ -311,24 +311,8 @@ const manageSubscriptionStatusChange = async (
 
   const { user_id: uuid, stripe_customer_id: _ } = customerData
 
-  let subscription: Stripe.Subscription | undefined
-  try {
-    // 2-second delay to prevent authcode from being used when its not in db
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    subscription = await stripe.subscriptions.retrieve(subscriptionId)
-  } catch (error: any) {
-    switch (error.type) {
-      case "StripeCardError":
-        console.log(`A payment error occurred: ${error.message}`)
-        break
-      case "StripeInvalidRequestError":
-        console.log(`An invalid request occurred: ${error.message}`)
-        break
-      default:
-        console.log("Another problem occurred, maybe unrelated to Stripe.")
-        break
-    }
+  let subscription: Stripe.Subscription = await stripe.subscriptions.retrieve(subscriptionId)
+  
 
     if (!subscription) {
       console.log(
@@ -395,7 +379,6 @@ const manageSubscriptionStatusChange = async (
         subscription.default_payment_method as Stripe.PaymentMethod,
       )
   }
-}
 
 function toDateTime(cancel_at: number): Date {
   return new Date(cancel_at * 1000)
