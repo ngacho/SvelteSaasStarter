@@ -62,7 +62,6 @@ export async function POST({ request }) {
         case "customer.subscription.deleted":
         case "customer.subscription.updated":
           const updated_subscription = event.data.object as Stripe.Subscription
-          console.log('updated_subscription', JSON.stringify(updated_subscription))
           await manageSubscriptionStatusChange(
             updated_subscription.id,
             updated_subscription.customer as string,
@@ -70,7 +69,6 @@ export async function POST({ request }) {
           break
         case "checkout.session.completed":
           const checkoutSession = event.data.object as Stripe.Checkout.Session
-          console.log('updated_subscription', JSON.stringify(checkoutSession))
           if (checkoutSession.mode === "subscription") {
             const subscriptionId = checkoutSession.subscription
             await manageSubscriptionStatusChange(

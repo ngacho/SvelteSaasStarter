@@ -14,6 +14,40 @@ type Price = Tables<"prices">
 
 const TRIAL_PERIOD_DAYS = 14
 
+const findSubscription = async (
+  subscriptionId: string,
+  retryCount = 0,
+  maxRetries = 3,
+): Promise<void> => {
+  let subscription : Stripe.Subscription | undefined
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    subscription = await stripe.subscriptions.retrieve(subscriptionId)
+  } catch (error) {
+    switch (e.type) {
+      case 'StripeCardError':
+        console.log(`A payment error occurred: ${e.message}`);
+        break;
+      case 'StripeInvalidRequestError':
+        console.log('An invalid request occurred.');
+        if (retryCount < maxRetries) {
+          console.log(`Retry attempt ${retryCount + 1} for subscription ID: ${subscriptionId}`)
+          subscription = await findSubscription(subscriptionId, retryCount + 1, maxRetries)
+        }else{
+          console.log(`Failed to retrieve subscription ID: ${subscriptionId}`)
+        }
+        break;
+      default:
+        console.log('Another problem occurred, maybe unrelated to Stripe.');
+        break;
+    } 
+  }
+
+
+
+  return subscription;
+}
+
 const supabaseAdmin = createClient(
   PUBLIC_SUPABASE_URL,
   PRIVATE_SUPABASE_SERVICE_ROLE,
@@ -311,7 +345,7 @@ const manageSubscriptionStatusChange = async (
 
   const { user_id: uuid, stripe_customer_id: _ } = customerData
 
-  let subscription: Stripe.Subscription = await stripe.subscriptions.retrieve(subscriptionId)
+    let subscription: Stripe.Subscription = await findSubscription(subscriptionId)
   
 
     if (!subscription) {
