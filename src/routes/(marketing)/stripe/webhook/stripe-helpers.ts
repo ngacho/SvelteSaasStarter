@@ -19,33 +19,37 @@ const findSubscription = async (
   retryCount = 0,
   maxRetries = 3,
 ): Promise<void> => {
-  let subscription : Stripe.Subscription | undefined
+  let subscription: Stripe.Subscription | undefined
   try {
     await new Promise((resolve) => setTimeout(resolve, 2000))
     subscription = await stripe.subscriptions.retrieve(subscriptionId)
   } catch (error) {
-    switch (e.type) {
-      case 'StripeCardError':
-        console.log(`A payment error occurred: ${e.message}`);
-        break;
-      case 'StripeInvalidRequestError':
-        console.log('An invalid request occurred.');
+    switch (error.type) {
+      case "StripeCardError":
+        console.log(`A payment error occurred: ${e.message}`)
+        break
+      case "StripeInvalidRequestError":
+        console.log("An invalid request occurred.")
         if (retryCount < maxRetries) {
-          console.log(`Retry attempt ${retryCount + 1} for subscription ID: ${subscriptionId}`)
-          subscription = await findSubscription(subscriptionId, retryCount + 1, maxRetries)
-        }else{
+          console.log(
+            `Retry attempt ${retryCount + 1} for subscription ID: ${subscriptionId}`,
+          )
+          subscription = await findSubscription(
+            subscriptionId,
+            retryCount + 1,
+            maxRetries,
+          )
+        } else {
           console.log(`Failed to retrieve subscription ID: ${subscriptionId}`)
         }
-        break;
+        break
       default:
-        console.log('Another problem occurred, maybe unrelated to Stripe.');
-        break;
-    } 
+        console.log("Another problem occurred, maybe unrelated to Stripe.")
+        break
+    }
   }
 
-
-
-  return subscription;
+  return subscription
 }
 
 const supabaseAdmin = createClient(
@@ -345,74 +349,73 @@ const manageSubscriptionStatusChange = async (
 
   const { user_id: uuid, stripe_customer_id: _ } = customerData
 
-    let subscription: Stripe.Subscription = await findSubscription(subscriptionId)
-  
+  let subscription: Stripe.Subscription = await findSubscription(subscriptionId)
 
-    if (!subscription) {
-      console.log(
-        "webhook.manageSubscriptionStatusChange() : No subscription found",
-      )
-      throw new Response("No subscription found", { status: 400 })
-    }
-
-    // Upsert the latest status of the subscription object.
-    const subscriptionData: TablesInsert<"subscriptions"> = {
-      id: subscription.id,
-      user_id: uuid,
-      metadata: subscription.metadata,
-      status: subscription.status,
-      price_id: subscription.items.data[0].price.id,
-      //TODO check quantity on subscription
-      // @ts-ignore
-      quantity: subscription.quantity,
-      cancel_at_period_end: subscription.cancel_at_period_end,
-      cancel_at: subscription.cancel_at
-        ? toDateTime(subscription.cancel_at).toISOString()
-        : null,
-      canceled_at: subscription.canceled_at
-        ? toDateTime(subscription.canceled_at).toISOString()
-        : null,
-      current_period_start: toDateTime(
-        subscription.current_period_start,
-      ).toISOString(),
-      current_period_end: toDateTime(
-        subscription.current_period_end,
-      ).toISOString(),
-      created: toDateTime(subscription.created).toISOString(),
-      ended_at: subscription.ended_at
-        ? toDateTime(subscription.ended_at).toISOString()
-        : null,
-      trial_start: subscription.trial_start
-        ? toDateTime(subscription.trial_start).toISOString()
-        : null,
-      trial_end: subscription.trial_end
-        ? toDateTime(subscription.trial_end).toISOString()
-        : null,
-    }
-
-    const { error: upsertError } = await supabaseAdmin
-      .from("subscriptions")
-      .upsert([subscriptionData])
-    if (upsertError) {
-      console.log(
-        "webhook.manageSubscriptionStatusChange() : upsertError",
-        upsertError.message,
-      )
-      throw new Response("Unhandled relevant event!", { status: 400 })
-    }
+  if (!subscription) {
     console.log(
-      `Inserted/updated subscription [${subscription.id}] for user [${uuid}]`,
+      "webhook.manageSubscriptionStatusChange() : No subscription found",
     )
-
-    // For a new subscription copy the billing details to the customer object.
-    // NOTE: This is a costly operation and should happen at the very end.
-    if (createAction && subscription.default_payment_method && uuid)
-      //@ts-ignore
-      await copyBillingDetailsToCustomer(
-        uuid,
-        subscription.default_payment_method as Stripe.PaymentMethod,
-      )
+    throw new Response("No subscription found", { status: 400 })
   }
+
+  // Upsert the latest status of the subscription object.
+  const subscriptionData: TablesInsert<"subscriptions"> = {
+    id: subscription.id,
+    user_id: uuid,
+    metadata: subscription.metadata,
+    status: subscription.status,
+    price_id: subscription.items.data[0].price.id,
+    //TODO check quantity on subscription
+    // @ts-ignore
+    quantity: subscription.quantity,
+    cancel_at_period_end: subscription.cancel_at_period_end,
+    cancel_at: subscription.cancel_at
+      ? toDateTime(subscription.cancel_at).toISOString()
+      : null,
+    canceled_at: subscription.canceled_at
+      ? toDateTime(subscription.canceled_at).toISOString()
+      : null,
+    current_period_start: toDateTime(
+      subscription.current_period_start,
+    ).toISOString(),
+    current_period_end: toDateTime(
+      subscription.current_period_end,
+    ).toISOString(),
+    created: toDateTime(subscription.created).toISOString(),
+    ended_at: subscription.ended_at
+      ? toDateTime(subscription.ended_at).toISOString()
+      : null,
+    trial_start: subscription.trial_start
+      ? toDateTime(subscription.trial_start).toISOString()
+      : null,
+    trial_end: subscription.trial_end
+      ? toDateTime(subscription.trial_end).toISOString()
+      : null,
+  }
+
+  const { error: upsertError } = await supabaseAdmin
+    .from("subscriptions")
+    .upsert([subscriptionData])
+  if (upsertError) {
+    console.log(
+      "webhook.manageSubscriptionStatusChange() : upsertError",
+      upsertError.message,
+    )
+    throw new Response("Unhandled relevant event!", { status: 400 })
+  }
+  console.log(
+    `Inserted/updated subscription [${subscription.id}] for user [${uuid}]`,
+  )
+
+  // For a new subscription copy the billing details to the customer object.
+  // NOTE: This is a costly operation and should happen at the very end.
+  if (createAction && subscription.default_payment_method && uuid)
+    //@ts-ignore
+    await copyBillingDetailsToCustomer(
+      uuid,
+      subscription.default_payment_method as Stripe.PaymentMethod,
+    )
+}
 
 function toDateTime(cancel_at: number): Date {
   return new Date(cancel_at * 1000)
